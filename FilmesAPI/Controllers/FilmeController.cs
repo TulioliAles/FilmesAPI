@@ -1,4 +1,5 @@
 ﻿using FilmesAPI.Data;
+using FilmesAPI.Data.Dtos;
 using FilmesAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -19,8 +20,16 @@ namespace FilmesAPI.Controllers
         }
      
         [HttpPost]
-        public IActionResult AdicionaFilme([FromBody] Filme filme)
+        public IActionResult AdicionaFilme([FromBody] CreateFilmeDto filmeDto)
         {
+            Filme filme = new Filme()
+            {
+                Titulo = filmeDto.Titulo,
+                Diretor = filmeDto.Diretor,
+                Genero = filmeDto.Genero,
+                Duracao = filmeDto.Duracao
+            };
+
             _context.Filmes.Add(filme);
 
             _context.SaveChanges();
@@ -41,14 +50,23 @@ namespace FilmesAPI.Controllers
 
             if(filme != null)
             {
-                return Ok(filme);
+                ReadFilmeDto filmeDto = new ReadFilmeDto()
+                {
+                    Titulo = filme.Titulo,
+                    Diretor = filme.Diretor,
+                    Genero = filme.Genero,
+                    Duracao = filme.Duracao,
+                    HoraDaConsulta = DateTime.Now
+                };
+
+                return Ok(filmeDto);
             }
 
             return NotFound();
         }
     
         [HttpPut("{id}")]
-        public IActionResult AtualizaFilme(int id, [FromBody] Filme filmeNovo)
+        public IActionResult AtualizaFilme(int id, [FromBody] UpdateFilmeDto filmeDto)
         {
             var filme = _context.Filmes.FirstOrDefault(filme => filme.Id == id);
 
@@ -57,10 +75,10 @@ namespace FilmesAPI.Controllers
                 return NotFound();
             }
 
-            filme.Titulo = filmeNovo.Titulo;
-            filme.Diretor = filmeNovo.Diretor;
-            filme.Genero = filmeNovo.Genero;
-            filme.Duracao = filmeNovo.Duracao;
+            filme.Titulo = filmeDto.Titulo;
+            filme.Diretor = filmeDto.Diretor;
+            filme.Genero = filmeDto.Genero;
+            filme.Duracao = filmeDto.Duracao;
 
             _context.SaveChanges();
 
